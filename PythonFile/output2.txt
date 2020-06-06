@@ -1,0 +1,393 @@
+Looking into operation
+b1;
+*********************************************************************************************
+Begin Transaction for Transaction num: ['1']
+Transaction Table :-
++--------+-----------+--------+----------+------------------+
+| tranID | Timestamp | State  | Lockedby | Locked Operation |
++--------+-----------+--------+----------+------------------+
+| ['1']  |     1     | Active |   None   |        []        |
++--------+-----------+--------+----------+------------------+
+Looking into operation
+r1 (Y);
+Beginning of Read Operation :-
+
+Data Item is :Y
+Transaction for Data Item 	Y	is Read locked by the transaction	['1']
+
+
+Lock Table :-
++----------+----------+--------+
+| dataitem |   lock   | tranID |
++----------+----------+--------+
+|    Y     | ReadLock | ['1']  |
++----------+----------+--------+
+Transaction Table :-
++--------+-----------+--------+----------+------------------+
+| tranID | Timestamp | State  | Lockedby | Locked Operation |
++--------+-----------+--------+----------+------------------+
+| ['1']  |     1     | Active |   None   |        []        |
++--------+-----------+--------+----------+------------------+
+Looking into operation
+w1 (Y);
+Beginning of Write Operation :-
+
+Data Item is :Y
+Upgrading the Read Lock to Write Lock on Data Item	Y	by the Transaction	['1']
+
+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    Y     | WriteLock | ['1']  |
++----------+-----------+--------+
+Looking into operation
+r1 (Z);
+Beginning of Read Operation :-
+
+Data Item is :Z
+Transaction for Data Item 	Z	is Read locked by the transaction	['1']
+
+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    Y     | WriteLock | ['1']  |
+|    Z     |  ReadLock | ['1']  |
++----------+-----------+--------+
+Transaction Table :-
++--------+-----------+--------+----------+------------------+
+| tranID | Timestamp | State  | Lockedby | Locked Operation |
++--------+-----------+--------+----------+------------------+
+| ['1']  |     1     | Active |   None   |        []        |
++--------+-----------+--------+----------+------------------+
+Looking into operation
+b2;
+*********************************************************************************************
+Begin Transaction for Transaction num: ['2']
+Transaction Table :-
++--------+-----------+--------+----------+------------------+
+| tranID | Timestamp | State  | Lockedby | Locked Operation |
++--------+-----------+--------+----------+------------------+
+| ['1']  |     1     | Active |   None   |        []        |
+| ['2']  |     2     | Active |   None   |        []        |
++--------+-----------+--------+----------+------------------+
+Looking into operation
+r2 (X);
+Beginning of Read Operation :-
+
+Data Item is :X
+Transaction for Data Item 	X	is Read locked by the transaction	['2']
+
+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    Y     | WriteLock | ['1']  |
+|    Z     |  ReadLock | ['1']  |
+|    X     |  ReadLock | ['2']  |
++----------+-----------+--------+
+Transaction Table :-
++--------+-----------+--------+----------+------------------+
+| tranID | Timestamp | State  | Lockedby | Locked Operation |
++--------+-----------+--------+----------+------------------+
+| ['1']  |     1     | Active |   None   |        []        |
+| ['2']  |     2     | Active |   None   |        []        |
++--------+-----------+--------+----------+------------------+
+Looking into operation
+w2 (X);
+Beginning of Write Operation :-
+
+Data Item is :X
+Upgrading the Read Lock to Write Lock on Data Item	X	by the Transaction	['2']
+
+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    Y     | WriteLock | ['1']  |
+|    Z     |  ReadLock | ['1']  |
+|    X     | WriteLock | ['2']  |
++----------+-----------+--------+
+Looking into operation
+w1 (Z);
+Beginning of Write Operation :-
+
+Data Item is :Z
+Upgrading the Read Lock to Write Lock on Data Item	Z	by the Transaction	['1']
+
+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    Y     | WriteLock | ['1']  |
+|    Z     | WriteLock | ['1']  |
+|    X     | WriteLock | ['2']  |
++----------+-----------+--------+
+Looking into operation
+r2 (Y);
+Beginning of Read Operation :-
+
+Data Item is :Y
+Conflicting : Transaction for Data Item is	Y	is already Write Lock by Transaction	['1']
+
+
+Calling Wound - Wait............
+Transaction Waiting	['2']	
+Transaction Table :-
++--------+-----------+---------+----------+------------------+
+| tranID | Timestamp |  State  | Lockedby | Locked Operation |
++--------+-----------+---------+----------+------------------+
+| ['1']  |     1     |  Active |   None   |        []        |
+| ['2']  |     2     | Waiting |  ['1']   |   ['r2 (Y);']    |
++--------+-----------+---------+----------+------------------+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    Y     | WriteLock | ['1']  |
+|    Z     | WriteLock | ['1']  |
+|    X     | WriteLock | ['2']  |
++----------+-----------+--------+
+Transaction Table :-
++--------+-----------+---------+----------+------------------+
+| tranID | Timestamp |  State  | Lockedby | Locked Operation |
++--------+-----------+---------+----------+------------------+
+| ['1']  |     1     |  Active |   None   |        []        |
+| ['2']  |     2     | Waiting |  ['1']   |   ['r2 (Y);']    |
++--------+-----------+---------+----------+------------------+
+Looking into operation
+e1;
+End Operation :-
+
+Committing transaction	['1']
+Unlocking all the data items held by	['1']	
+Attempting to perform the operation	r2 (Y);
+Data Item is :Y
+Transaction for Data Item 	Y	is Read locked by the transaction	['2']
+
+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    X     | WriteLock | ['2']  |
+|    Y     |  ReadLock | ['2']  |
++----------+-----------+--------+
+Transaction Table :-
++--------+-----------+--------+----------+------------------+
+| tranID | Timestamp | State  | Lockedby | Locked Operation |
++--------+-----------+--------+----------+------------------+
+| ['1']  |     1     | Commit |   None   |        []        |
+| ['2']  |     2     | Active |   None   |        []        |
++--------+-----------+--------+----------+------------------+
+Looking into operation
+b3;
+*********************************************************************************************
+Begin Transaction for Transaction num: ['3']
+Transaction Table :-
++--------+-----------+--------+----------+------------------+
+| tranID | Timestamp | State  | Lockedby | Locked Operation |
++--------+-----------+--------+----------+------------------+
+| ['1']  |     1     | Commit |   None   |        []        |
+| ['2']  |     2     | Active |   None   |        []        |
+| ['3']  |     3     | Active |   None   |        []        |
++--------+-----------+--------+----------+------------------+
+Looking into operation
+r3 (Z);
+Beginning of Read Operation :-
+
+Data Item is :Z
+Transaction for Data Item 	Z	is Read locked by the transaction	['3']
+
+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    X     | WriteLock | ['2']  |
+|    Y     |  ReadLock | ['2']  |
+|    Z     |  ReadLock | ['3']  |
++----------+-----------+--------+
+Transaction Table :-
++--------+-----------+--------+----------+------------------+
+| tranID | Timestamp | State  | Lockedby | Locked Operation |
++--------+-----------+--------+----------+------------------+
+| ['1']  |     1     | Commit |   None   |        []        |
+| ['2']  |     2     | Active |   None   |        []        |
+| ['3']  |     3     | Active |   None   |        []        |
++--------+-----------+--------+----------+------------------+
+Looking into operation
+w3 (Z);
+Beginning of Write Operation :-
+
+Data Item is :Z
+Upgrading the Read Lock to Write Lock on Data Item	Z	by the Transaction	['3']
+
+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    X     | WriteLock | ['2']  |
+|    Y     |  ReadLock | ['2']  |
+|    Z     | WriteLock | ['3']  |
++----------+-----------+--------+
+Looking into operation
+w2 (Y);
+Beginning of Write Operation :-
+
+Data Item is :Y
+Upgrading the Read Lock to Write Lock on Data Item	Y	by the Transaction	['2']
+
+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    X     | WriteLock | ['2']  |
+|    Y     | WriteLock | ['2']  |
+|    Z     | WriteLock | ['3']  |
++----------+-----------+--------+
+Looking into operation
+e2;
+End Operation :-
+
+Committing transaction	['2']
+Unlocking all the data items held by	['2']	
+Transaction Table :-
++--------+-----------+--------+----------+------------------+
+| tranID | Timestamp | State  | Lockedby | Locked Operation |
++--------+-----------+--------+----------+------------------+
+| ['1']  |     1     | Commit |   None   |        []        |
+| ['2']  |     2     | Commit |   None   |        []        |
+| ['3']  |     3     | Active |   None   |        []        |
++--------+-----------+--------+----------+------------------+
+Looking into operation
+r3 (X);
+Beginning of Read Operation :-
+
+Data Item is :X
+Transaction for Data Item 	X	is Read locked by the transaction	['3']
+
+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    Z     | WriteLock | ['3']  |
+|    X     |  ReadLock | ['3']  |
++----------+-----------+--------+
+Transaction Table :-
++--------+-----------+--------+----------+------------------+
+| tranID | Timestamp | State  | Lockedby | Locked Operation |
++--------+-----------+--------+----------+------------------+
+| ['1']  |     1     | Commit |   None   |        []        |
+| ['2']  |     2     | Commit |   None   |        []        |
+| ['3']  |     3     | Active |   None   |        []        |
++--------+-----------+--------+----------+------------------+
+Looking into operation
+w3 (X);
+Beginning of Write Operation :-
+
+Data Item is :X
+Upgrading the Read Lock to Write Lock on Data Item	X	by the Transaction	['3']
+
+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    Z     | WriteLock | ['3']  |
+|    X     | WriteLock | ['3']  |
++----------+-----------+--------+
+Looking into operation
+b4;
+*********************************************************************************************
+Begin Transaction for Transaction num: ['4']
+Transaction Table :-
++--------+-----------+--------+----------+------------------+
+| tranID | Timestamp | State  | Lockedby | Locked Operation |
++--------+-----------+--------+----------+------------------+
+| ['1']  |     1     | Commit |   None   |        []        |
+| ['2']  |     2     | Commit |   None   |        []        |
+| ['3']  |     3     | Active |   None   |        []        |
+| ['4']  |     4     | Active |   None   |        []        |
++--------+-----------+--------+----------+------------------+
+Looking into operation
+w4(X);
+Beginning of Write Operation :-
+
+Data Item is :X
+Conflicting:Transaction for the Data Item 	X	is already write Locked by the Transaction	['3']	
+
+
+Calling Wound - Wait............
+Transaction Waiting	['4']	
+Transaction Table :-
++--------+-----------+---------+----------+------------------+
+| tranID | Timestamp |  State  | Lockedby | Locked Operation |
++--------+-----------+---------+----------+------------------+
+| ['1']  |     1     |  Commit |   None   |        []        |
+| ['2']  |     2     |  Commit |   None   |        []        |
+| ['3']  |     3     |  Active |   None   |        []        |
+| ['4']  |     4     | Waiting |  ['3']   |    ['w4(X);']    |
++--------+-----------+---------+----------+------------------+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    Z     | WriteLock | ['3']  |
+|    X     | WriteLock | ['3']  |
++----------+-----------+--------+
+Looking into operation
+e3;
+End Operation :-
+
+Committing transaction	['3']
+Unlocking all the data items held by	['3']	
+Attempting to perform the operation	w4(X);
+Data Item is :X
+Transaction for Data Item 	X	is Write locked by the transaction	['4']
+
+
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    X     | WriteLock | ['4']  |
++----------+-----------+--------+
+Lock Table :-
++----------+-----------+--------+
+| dataitem |    lock   | tranID |
++----------+-----------+--------+
+|    X     | WriteLock | ['4']  |
++----------+-----------+--------+
+Transaction Table :-
++--------+-----------+--------+----------+------------------+
+| tranID | Timestamp | State  | Lockedby | Locked Operation |
++--------+-----------+--------+----------+------------------+
+| ['1']  |     1     | Commit |   None   |        []        |
+| ['2']  |     2     | Commit |   None   |        []        |
+| ['3']  |     3     | Commit |   None   |        []        |
+| ['4']  |     4     | Active |   None   |        []        |
++--------+-----------+--------+----------+------------------+
+Looking into operation
+e4;
+End Operation :-
+
+Committing transaction	['4']
+Unlocking all the data items held by	['4']	
+Transaction Table :-
++--------+-----------+--------+----------+------------------+
+| tranID | Timestamp | State  | Lockedby | Locked Operation |
++--------+-----------+--------+----------+------------------+
+| ['1']  |     1     | Commit |   None   |        []        |
+| ['2']  |     2     | Commit |   None   |        []        |
+| ['3']  |     3     | Commit |   None   |        []        |
+| ['4']  |     4     | Commit |   None   |        []        |
++--------+-----------+--------+----------+------------------+
